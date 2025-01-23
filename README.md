@@ -13,9 +13,9 @@ This project is a prototype web application that converts audio uploads or text 
 ---
 
 ## Tech Stack
-- **Frontend**: React, Material UI, Framer Motion
+- **Frontend**: React, Material UI, Framer Motion, Multer
 - **Backend**: Next.js API Routes (serverless)
-- **AI**: Google Generative AI API, ElevenLabs API (optional)
+- **AI**: Google Generative AI API
 - **Audio Processing**: Multer, Fluent-FFmpeg
 - **Deployment**: AWS Lambda (via Vercel for serverless hosting)
 - **File Upload**: Chunked uploads for large audio files
