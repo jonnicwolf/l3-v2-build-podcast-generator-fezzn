@@ -20,6 +20,27 @@ This project is a prototype web application that converts audio uploads or text 
 - **Deployment**: AWS Lambda (via Vercel for serverless hosting)
 - **File Upload**: Chunked uploads for large audio files
 
+## Flow Chart
+‘’’mermaid
+flowchart
+  A[User] -->|Upload MP3| B[Next.js App]
+  B --> |Validate MP3 with Multer| G{Valid MP3?}
+  G --> |Yes| C[Gemini API Health Check]
+  G --> |No| H[Error Message]
+  H --> |Send Error Message| A
+  C --> |Healthy| I[Dockerized AWS Lambda]
+  C --> |Unhealthy| J[Health Check Failed]
+  J --> |Send Error Message| A
+  I --> |Lambda Function Runs| D[Process with FFmpeg]
+  D --> L[Post FFmpeg Processing Gemini API Health Check]
+  L --> |Healthy| M[Gemini API Call]
+  L --> |Unhealthy| N[Health Check Failed]
+  N --> |Retry| L
+  N --> |Error Message| A
+  M --> |Send Response| B
+  B --> |Unpack Gemini Transcript| A
+‘’’
+
 ---
 
 ## Setup
