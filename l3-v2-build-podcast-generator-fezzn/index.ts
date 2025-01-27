@@ -55,6 +55,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     await new Promise((resolve) => inputFileWriteStream.on('finish', resolve));
 
     const command = `ffmpeg -i ${inputFilePath} ${outputFilePath}`;
+
     await runCommand(command);
 
     // Upload to S3
