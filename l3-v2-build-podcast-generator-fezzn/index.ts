@@ -13,7 +13,7 @@ const s3Client = new S3Client({
   },
 });
 
-// Function to wrap exec in a Promise
+// Wrap exec in a Promise
 function runCommand(command: string): Promise<string> {
   return new Promise((resolve, reject) => {
     exec(command, (error, stdout, stderr) => {
@@ -75,7 +75,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         Bucket: process.env.AWS_S3_BUCKET_NAME,
         Key: outputKey,
       }),
-      { expiresIn: 60 } // URL valid for 1 minute
+      { expiresIn: 60 } // 1 minute
     );
 
     res.status(200).json({ message: 'Audio processing complete', fileUrl: signedUrl });
