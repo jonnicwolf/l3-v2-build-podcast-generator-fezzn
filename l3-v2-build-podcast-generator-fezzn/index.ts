@@ -3,7 +3,9 @@ import fs from 'fs';
 import path from 'path';
 import { S3Client, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { apiHealthCheck } from './utils/apiHealthCheck';
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { transcribeWithGemini } from './utils/transcribeWithGemini';
 
 const s3Client = new S3Client({
   region: process.env.AWS_REGION,
@@ -13,7 +15,6 @@ const s3Client = new S3Client({
   },
 });
 
-// Wrap exec in a Promise
 function runCommand(command: string): Promise<string> {
   return new Promise((resolve, reject) => {
     exec(command, (error, stdout, stderr) => {
@@ -29,7 +30,7 @@ function runCommand(command: string): Promise<string> {
 };
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  if (req.method !== 'POST') return res.status(405).end(`Method ${req.method} Not Allowed`);
+  if (req.method !== 'POST') return res.status(405).end( `Method ${req.method} Not Allowed` );
 
   const { inputKey, outputKey } = req.body;
 
@@ -39,6 +40,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const outputFilePath = `/tmp/${path.basename(outputKey)}`;
 
   try {
+    await apiHealthCheck();
+
     // Download input from S3
     const inputFileCommand = new GetObjectCommand({
       Bucket: process.env.AWS_S3_BUCKET_NAME,
@@ -67,6 +70,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       ContentType: 'audio/mpeg',
       ACL: 'public-read', // Allow public access to processed file
     });
+
     await s3Client.send(uploadCommand);
 
     // Signed URL for the processed file
@@ -76,8 +80,17 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         Bucket: process.env.AWS_S3_BUCKET_NAME,
         Key: outputKey,
       }),
-      { expiresIn: 60 } // 1 minute
+      { expiresIn: 3600 } // 1 hour
     );
+
+    await apiHealthCheck();
+
+    const transcription = await transcribeWithGemini(signedUrl);
+    console.log(transcription);
+
+
+    //create post route/listener to receive status update from lambda after gem respone
+      // on 200 
 
     res.status(200).json({ message: 'Audio processing complete', fileUrl: signedUrl });
   } catch (error) {
