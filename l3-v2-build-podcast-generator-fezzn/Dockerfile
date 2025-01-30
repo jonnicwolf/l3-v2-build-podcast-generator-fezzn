@@ -1,14 +1,11 @@
 # Use the official Node.js image as a base
 FROM public.ecr.aws/lambda/nodejs:18
 
-WORKDIR /app
-
-COPY package*.json ./
-
+# Copy package.json and install dependencies
+COPY package.json ${LAMBDA_TASK_ROOT}
 RUN npm install --production
 
-COPY . .
+COPY . ${LAMBDA_TASK_ROOT}
 
-RUN npm run build
-
-CMD ['index.handler']
+# Lambda function handler
+CMD ["index.handler"]
