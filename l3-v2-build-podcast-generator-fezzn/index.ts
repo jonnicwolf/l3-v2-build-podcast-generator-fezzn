@@ -88,11 +88,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const transcription = await transcribeWithGemini(signedUrl);
     console.log(transcription);
 
-
-    //create post route/listener to receive status update from lambda after gem respone
-      // on 200 
-
-    res.status(200).json({ message: 'Audio processing complete', fileUrl: signedUrl });
+    res.status(200).json({
+      message: 'Audio processing complete',
+      fileUrl: signedUrl,
+      transcription: transcription
+    });
   } catch (error) {
     console.error('Error processing audio:', error);
     // @ts-ignore
