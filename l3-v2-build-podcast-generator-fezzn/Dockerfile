@@ -1,11 +1,13 @@
-# Use the official Node.js image as a base
+# Use the official AWS Lambda Node.js 18 base image
 FROM public.ecr.aws/lambda/nodejs:18
 
-# Copy package.json and install dependencies
-COPY package.json ${LAMBDA_TASK_ROOT}
+WORKDIR ${LAMBDA_TASK_ROOT}
+
+COPY package.json package-lock.json ./
+
 RUN npm install --production
 
-COPY . ${LAMBDA_TASK_ROOT}
+COPY . .
 
 # Lambda function handler
 CMD ["index.handler"]
