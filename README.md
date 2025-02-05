@@ -4,21 +4,21 @@ This project is a prototype web application that converts audio uploads or text 
 
 ## Features
 - Upload and process audio files (supports large files via chunking).
-- Text-to-Audio conversion using Web Speech API or ElevenLabs API.
+- Audio-to-Text conversion using Gemini AI API or ElevenLabs API.
 - AI-powered text transformation using Google Generative AI (or an alternative).
 - Podcast player interface with start, stop, and play controls.
-- Server-side audio processing with `fluent-ffmpeg` and `multer`.
+- Audio processing via `fluent-ffmpeg` in AWS Lambda utilizing Dockerized Lambda functions.
 - Monorepo structure with a single service using **Next.js** for both frontend and backend.
 
 ---
 
 ## Tech Stack
-- **Frontend**: React, Material UI, Framer Motion, Multer
+- **Frontend**: React, Material UI, Framer Motion
 - **Backend**: Next.js API Routes (serverless)
 - **AI**: Google Generative AI API
-- **Audio Processing**: Multer, Fluent-FFmpeg
-- **Deployment**: AWS Lambda (via Vercel for serverless hosting)
-- **File Upload**: Chunked uploads for large audio files
+- **Audio Processing**: Fluent-FFmpeg
+- **Deployment**: AWS Lambda (via Vercel for serverless hosting), ECR, S3
+- **File Upload**: S3
 
 ## Flow Chart
 ‘’’mermaid
