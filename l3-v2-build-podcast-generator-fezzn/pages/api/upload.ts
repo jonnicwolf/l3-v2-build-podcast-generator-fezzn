@@ -3,7 +3,7 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 const s3Client = new S3Client({
-  region: process.env.AWS_REGION,
+  region: process.env.AWS_REGION, 
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
@@ -26,7 +26,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const signedUrl = await getSignedUrl( s3Client, command, { expiresIn: 60 });
     res.status(200).json({ url: signedUrl });
   } catch (error) {
-    // @ts-ignore
+    // @ts-expect-error: error type
     res.status(500).json({ error: error.message });
   }
 };

@@ -1,0 +1,43 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: process-audio
+
+Parameters:
+  GeminiApiKey:
+    Type: String
+    Description: Gemini API key
+  RegionKey:
+    Type: String
+    Description: AWS Region
+  AccessKeyId:
+    Type: String
+    Description: AWS Access Key ID
+  SecretAccessKey:
+    Type: String
+    Description: AWS Secret Access Key
+  BucketName:
+    Type: String
+    Description: AWS S3 Bucket Name
+
+Globals:
+  Function:
+    Timeout: 3
+
+    LoggingConfig:
+      LogFormat: JSON
+Resources:
+  ProcessAudio:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs18.x
+      MemorySize: 512
+      Architectures:
+      - x86_64
+      Environment:
+        Variables:
+          GEMINI_API_KEY: !Ref GeminiApiKey
+          REGION: !Ref RegionKey
+          ACCESS_KEY_ID: !Ref AccessKeyId
+          SECRET_ACCESS_KEY: !Ref SecretAccessKey
+          S3_BUCKET_NAME: !Ref BucketName

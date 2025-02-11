@@ -1,0 +1,22 @@
+{
+  "name": "lambda",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "prebuild": "rm -rf dist",
+    "build": "esbuild ./utils/index.ts --bundle --minify --sourcemap --platform=node --target=es2020 --outdir=dist",
+    "postbuild": "cd dist && zip -r index.zip index.js*"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.147",
+    "esbuild": "^0.24.2"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.740.0",
+    "@aws-sdk/s3-request-presigner": "^3.740.0",
+    "ffmpeg-static": "^5.2.0"
+  }
+}
