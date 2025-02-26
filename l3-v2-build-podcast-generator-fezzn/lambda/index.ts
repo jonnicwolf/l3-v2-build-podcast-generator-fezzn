@@ -1,6 +1,5 @@
-import { Handler } from 'aws-lambda';
+import { S3Event, Handler } from 'aws-lambda';
 const { exec } = require('child_process');
-const { NextApiRequest, NextApiResponse } = require('next');
 const fs = require('fs');
 const path = require('path');
 const { S3Client, GetObjectCommand, PutObjectCommand } = require('@aws-sdk/client-s3');
@@ -30,23 +29,21 @@ function runCommand(command: string): Promise<string> {
   });
 };
 
-export const handler: Handler = async (req: typeof NextApiRequest, res: typeof NextApiResponse) => {
-  if (req.method !== 'POST') return res.status(405).end(`Method ${req.method} Not Allowed`);
+export const handler: Handler<S3Event> = async (event) => {
+  const record = event.Records[0];
+  const inputKey = record.s3.object.key;
+  const inputBucket = record.s3.bucket.name;
+  const outputKey = `processed/${path.basename(inputKey)}`;
+  const outputBucket = process.env.OUTPUT_S3_BUCKET_NAME!;
 
-  const { inputKey, outputKey } = req.body;
-
-  if (!inputKey || !outputKey) return res.status(400).json({ error: 'Input and/or output key is missing.' });
   const inputFilePath = `/tmp/${path.basename(inputKey)}`;
   const outputFilePath = `/tmp/${path.basename(outputKey)}`;
 
   try {
-    const result = await processAudio(inputKey, outputKey);
-
-    res.status(200).json(result);
+    const result = await processAudio(inputKey, inputBucket, outputKey, outputBucket);
+    console.log(`Audio processing complete: ${result}`);
   } catch (error) {
     console.error('Error processing audio:', error);
-    // @ts-expect-error: error type
-    res.status(500).json({ error: error.message });
   } finally {
     // Clean up
     if (fs.existsSync(inputFilePath)) fs.unlinkSync(inputFilePath);
@@ -54,7 +51,12 @@ export const handler: Handler = async (req: typeof NextApiRequest, res: typeof N
   }
 };
 
-async function processAudio(inputKey: string, outputKey: string) {
+async function processAudio (
+  inputKey: string,
+  inputBucket: string,
+  outputKey: string,
+  outputBucket: string,
+) {
   const inputFilePath = `/tmp/${path.basename(inputKey)}`;
   const outputFilePath = `/tmp/${path.basename(outputKey)}`;
 
@@ -62,7 +64,7 @@ async function processAudio(inputKey: string, outputKey: string) {
 
   // Download input from S3
   const inputFileCommand = new GetObjectCommand({
-    Bucket: process.env.S3_BUCKET_NAME,
+    Bucket: inputBucket,
     Key: inputKey,
   });
   const inputFileResponse = await s3Client.send(inputFileCommand);
@@ -82,7 +84,7 @@ async function processAudio(inputKey: string, outputKey: string) {
   // Upload to S3
   const processedFileStream = fs.createReadStream(outputFilePath);
   const uploadCommand = new PutObjectCommand({
-    Bucket: process.env.S3_BUCKET_NAME,
+    Bucket: outputBucket,
     Key: outputKey,
     Body: processedFileStream,
     ContentType: 'audio/mpeg',
