@@ -11,6 +11,27 @@ This project is a prototype web application that converts audio uploads or text 
 - Monorepo structure with a single service using **Next.js** for both frontend and backend.
 
 ---
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+
+## Getting Started
+
+First, run the development server:
+
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
 ## Tech Stack
 - **Frontend**: React, Material UI, Framer Motion
@@ -21,7 +42,7 @@ This project is a prototype web application that converts audio uploads or text 
 - **File Upload**: S3
 
 ## Flow Chart
-‘’’mermaid
+```mermaid
 flowchart
   A[User] -->|Upload MP3| B[Next.js App]
   B --> |Validate MP3 with Multer| G{Valid MP3?}
@@ -39,8 +60,7 @@ flowchart
   N --> |Error Message| A
   M --> |Send Response| B
   B --> |Unpack Gemini Transcript| A
-‘’’
-
+```
 ---
 
 ## Setup

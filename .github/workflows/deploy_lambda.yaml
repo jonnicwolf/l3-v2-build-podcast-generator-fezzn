@@ -1,0 +1,44 @@
+name: Deploy Process Audio Lambda
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup SAM CLI
+        uses: aws-actions/setup-sam@v2
+      
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.SECRET_ACCESS_KEY }}
+          aws-region: us-east-2
+
+      - name: SAM build
+        run: sam build --use-container
+
+      - name: SAM deploy
+        run: |
+          sam deploy \
+            --stack-name process-audio \
+            --region us-east-2 \
+            --capabilities "CAPABILITY_NAMED_IAM" \
+            --template-file .aws-sam/build/template.yaml \
+            --s3-bucket artifacts-jnwn \
+            --no-fail-on-empty-changeset \
+            --no-confirm-changeset \
+            --role-arn arn:aws:iam::147997143148:role/l3-v2-build-podcast-generator-fezzn-s3-object-lambda-role \
+            --parameter-overrides \
+              ParameterKey=GeminiApiKey,ParameterValue=${{ secrets.GEMINI_API_KEY }} \
+              ParameterKey=RegionKey,ParameterValue=us-east-2 \
+              ParameterKey=AccessKeyId,ParameterValue=${{ secrets.ACCESS_KEY_ID }} \
+              ParameterKey=SecretAccessKey,ParameterValue=${{ secrets.SECRET_ACCESS_KEY }} \
+              ParameterKey=BucketName,ParameterValue=l3-v2-build-podcast-generator-fezzn-bucket
